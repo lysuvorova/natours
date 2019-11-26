@@ -123,7 +123,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
 // Only for rendered pages, no errors!
 exports.isLoggedIn = async (req, res, next) => {
-  console.log('req.cookie.jwt', req.cookies.jwt);
+  // console.log('req.cookie.jwt', req.cookies.jwt);
   try {
     if (req.cookies.jwt) {
       // Verify token
@@ -146,7 +146,7 @@ exports.isLoggedIn = async (req, res, next) => {
 
       // THERE IS A LOGGED IN USER
       res.locals.user = current;
-      console.log('loggedin', current);
+      // console.log('loggedin', current);
     }
     return next();
   } catch (err) {
