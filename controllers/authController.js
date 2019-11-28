@@ -12,19 +12,17 @@ const signToken = id => {
   });
 };
 
-const createSendToken = (user, statusCode, res) => {
+const createSendToken = (user, statusCode, req, res) => {
   const token = signToken(user._id);
-  const cookieOptions = {
+
+  res.cookie('jwt', token, {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
-    httpOnly: true
-  };
-
-  // BELOW 'IF' STATMENT MAKES TROUBLES IN PPRODUCTION AUTHENTICATION, (ALL REQ.COOKIES.JWT DATA BECOMES UNDEFINED), USE WITH COUTION!!!
-  // if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
-
-  res.cookie('jwt', token, cookieOptions);
+    httpOnly: true,
+    secure: req.secure || req.headers['x-forwarded-proto'] === 'https'
+  });
+  // console.log('res.cookie', res.cookie);
   //console.log(user);
   // Remove password from the output
   user.password = undefined;
@@ -51,7 +49,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   await new Email(newUser, url).sendWelcome();
 
-  createSendToken(newUser, 201, res);
+  createSendToken(newUser, 201, req, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -69,15 +67,21 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // 3) If everything is ok, send token to client
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 
 exports.logout = (req, res) => {
-  res.cookie('jwt', 'loggedout', {
-    expires: new Date(Date.now() + 10 * 1000),
+  res.cookie('jwt', req.headers.cookie, {
+    expires: new Date('Thu, Jan 01 1970 00:00:00 UTC'),
     httpOnly: true
   });
-  res.status(200).json({ status: 'success' });
+  // res.redirect('/');
+  console.log('authController: success logout', req.cookies);
+
+  res.status(200).json({
+    status: 'success'
+  });
+  console.log('success ending1');
 };
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -93,9 +97,10 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
 
   if (!token) {
-    return next(
+    return res.redirect('/');
+    /*  next(
       new AppError('You are not logged in! Please log in to get access.', 401)
-    );
+    ); */
   }
   // 2) Verification of the token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
@@ -229,7 +234,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   // 3) Update changedPasswordAt property for the user
 
   // 4) Log the user in, send JWT
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
@@ -248,5 +253,5 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   // User.findByIdAndUpdate won't work as intendent. Use only 'save' method for updating user password.
 
   // 4) Log the user in, send JWT
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
