@@ -75,13 +75,10 @@ exports.logout = (req, res) => {
     expires: new Date('Thu, Jan 01 1970 00:00:00 UTC'),
     httpOnly: true
   });
-  // res.redirect('/');
-  console.log('authController: success logout', req.cookies);
 
   res.status(200).json({
     status: 'success'
   });
-  console.log('success ending1');
 };
 
 exports.protect = catchAsync(async (req, res, next) => {
