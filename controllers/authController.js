@@ -72,9 +72,12 @@ exports.login = catchAsync(async (req, res, next) => {
 
 exports.logout = (req, res) => {
   res.cookie('jwt', req.headers.cookie, {
-    expires: new Date('Thu, Jan 01 1970 00:00:00 UTC'),
-    httpOnly: true
+    expires: new Date(0),
+    httpOnly: true,
+    'max-age': -1
   });
+  // console.log('res.cookie', res._headers['set-cookie']);
+  // console.log('res.cookie', req.headers.cookie, new Date(0));
 
   res.status(200).json({
     status: 'success'
@@ -83,6 +86,7 @@ exports.logout = (req, res) => {
 
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check if it's there
+
   let token;
   if (
     req.headers.authorization &&
@@ -99,8 +103,10 @@ exports.protect = catchAsync(async (req, res, next) => {
       new AppError('You are not logged in! Please log in to get access.', 401)
     ); */
   }
+
   // 2) Verification of the token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  // console.log('decoded', decoded);
 
   // 3) Check if user still exist
   const current = await User.findById(decoded.id);
