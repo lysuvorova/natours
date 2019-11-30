@@ -8389,7 +8389,7 @@ exports.showAlert = showAlert;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.logout = exports.login = void 0;
+exports.login = void 0;
 
 var _axios = _interopRequireDefault(require("axios"));
 
@@ -8440,33 +8440,15 @@ var login = function login(email, password) {
     }
   }, null, null, [[0, 7]]);
 };
+/* export const logout = async () => {
+  await axios({
+    method: 'GET',
+    url: '/api/v1/users/logout'
+  });
+}; */
+
 
 exports.login = login;
-
-var logout = function logout() {
-  var res;
-  return regeneratorRuntime.async(function logout$(_context2) {
-    while (1) {
-      switch (_context2.prev = _context2.next) {
-        case 0:
-          _context2.next = 2;
-          return regeneratorRuntime.awrap((0, _axios.default)({
-            method: 'GET',
-            url: '/api/v1/users/logout'
-          }));
-
-        case 2:
-          res = _context2.sent;
-
-        case 3:
-        case "end":
-          return _context2.stop();
-      }
-    }
-  });
-};
-
-exports.logout = logout;
 },{"axios":"../../../node_modules/axios/index.js","./alerts":"alerts.js"}],"signup.js":[function(require,module,exports) {
 "use strict";
 
@@ -8861,7 +8843,6 @@ var _updateSettings = require("./updateSettings");
 var mapBox = document.getElementById('map');
 var loginForm = document.querySelector('.form--login');
 var signUpForm = document.querySelector('.form--signup');
-var logOutBtn = document.querySelector('.nav__el--logout');
 var updateUserDataForm = document.querySelector('.form-user-data');
 var updatePasswordForm = document.querySelector('.form-user-password'); //DELEGATION
 
@@ -8877,10 +8858,6 @@ if (loginForm) {
     var password = document.getElementById('password').value;
     (0, _login.login)(email, password);
   });
-}
-
-if (logOutBtn) {
-  logOutBtn.addEventListener('click', _login.logout);
 }
 
 if (signUpForm) {
@@ -8967,7 +8944,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52934" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50542" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

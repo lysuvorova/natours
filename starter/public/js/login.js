@@ -24,9 +24,9 @@ export const login = async (email, password) => {
   }
 };
 
-export const logout = async () => {
-  const res = await axios({
+/* export const logout = async () => {
+  await axios({
     method: 'GET',
     url: '/api/v1/users/logout'
   });
-};
+}; */

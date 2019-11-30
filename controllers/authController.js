@@ -71,15 +71,16 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 exports.logout = (req, res) => {
-  res.cookie('jwt', req.headers.cookie, {
-    expires: new Date(0),
-    httpOnly: true
+  // const back = `${req.protocol}://${req.hostname}:${process.env.PORT}`;
+  res.clearCookie('jwt', {
+    httpOnly: true,
+    secure: req.secure || req.headers['x-forwarded-proto'] === 'https'
   });
-  // console.log('res.cookie', res._headers['set-cookie']);
 
-  res.status(200).json({
-    status: 'success'
-  });
+  //  console.log('res.cookie-logout', res._headers['set-cookie']);
+  //  console.log('req.headers.referer', req.header('Referer'));
+
+  res.redirect('/');
 };
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -96,15 +97,14 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
 
   if (!token) {
-    return res.redirect('/');
-    /*  next(
+    return next(
       new AppError('You are not logged in! Please log in to get access.', 401)
-    ); */
+    );
   }
 
   // 2) Verification of the token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  console.log('decoded', decoded);
+  // console.log('decoded', decoded);
 
   // 3) Check if user still exist
   const current = await User.findById(decoded.id);
@@ -129,7 +129,6 @@ exports.protect = catchAsync(async (req, res, next) => {
 
 // Only for rendered pages, no errors!
 exports.isLoggedIn = async (req, res, next) => {
-  // console.log('req.cookie.jwt', req.cookies.jwt);
   try {
     if (req.cookies.jwt) {
       // Verify token
@@ -154,6 +153,7 @@ exports.isLoggedIn = async (req, res, next) => {
       res.locals.user = current;
       // console.log('loggedin', current);
     }
+
     return next();
   } catch (err) {
     next();
